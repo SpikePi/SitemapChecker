@@ -15,7 +15,7 @@ Wird eine auf Debian basierte Distribution oder Fedora eingesetzt, können die f
 
 - Script starten
     - ./sitemapChecker.sh oder bash /sitemapChecker.sh
-    - zu testende Seite muss als erster (und einziger) Parameter an das Script übergeben werden bspw. ./sitemapChecker.sh bader.de
+    - zu testende Seite muss als erster (und einziger) Parameter an das Script übergeben werden bspw. ./sitemapChecker.sh heise.de
 
 
 Das Script läd alle Sitemaps herunter und testet alle hinterlegten Links. Das Ergebnis liegt anschliessend in ~/results.html.
