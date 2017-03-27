@@ -4,53 +4,52 @@
 clear
 
 # Save arguments of command line to variables
-sitemap=$1
+url=$1
 maxNumURLs=$2
 
 # check if seccessary tools are installed
 # if not install them (made it work on debian based distros and fedora)
 which xmllint curl wget sort sed grep > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    echo -e "To run this Script you need to install the following tools:\n curl sed grep coreutils"
-    echo
-    read -n 1 -p "Press any key to continue... "
-    #   test if distribution is fedora
-    which dnf > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        sudo dnf install curl libxml2 wget coreutils sed grep
-    fi
+    distribution=$(lsb_release -is)
 
-    #   test if distribution is debian-based
-    which apt-get > /dev/null 2>&1
-
-    if [ $? -eq 0 ]; then
-        sudo apt-get update; sudo apt-get install curl libxml2-utils wget coreutils sed grep
-    fi
-
-    #   feedback, that other distros are (currently) not supported
-    which dnf || which apt-get > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-        echo -e "Your distribution is not supported, so you have to install the seccessary tools manually"
+        echo "Cant't identify your Linux Distribution because lsb_release is not installed"
+        read -p "Press any key to exit ... " -n 1
+        exit 1
     fi
+
+    case $distribution in
+        Debian | LinuxMint | Ubuntu )
+            sudo apt-get update; sudo apt-get install curl libxml2-utils wget coreutils sed grep
+            ;;
+        Fedora )
+            sudo dnf install curl libxml2 wget coreutils sed grep
+            ;;
+        * )
+            echo "Your Linux Distribution is not yet supported"
+            echo "Please manually install the following tools: curl sed grep coreutils"
+            read -p "Press any key to exit ... " -n 1
+            exit 1
+            ;;
+    esac
 fi
-clear
 
 
 # if argument 1 is empty ask for input
 if [ -z $1 ]; then
-    read -p "Type the URL you want to check: " sitemap
+    read -p "Type the URL you want to check: " url
     clear
 fi
 
-# clean remainings of previous run
-rm ~/sitemapChecker/*  2> /dev/null
+
 # create a folder for the files we need to check
-mkdir ~/sitemapChecker 2> /dev/null
+mkdir ~/SitemapCheck_$url
 # go into the directory we want to work with
-cd ~/sitemapChecker
+cd ~/SitemapCheck_$url
 
 # download the sitemap.xml. In case of an error exit the script
-wget $sitemap/sitemap.xml -O sitemap.tmp
+wget $url/sitemap.xml -O sitemap.tmp
 if [ $? -ne 0 ]; then
     clear
     echo "No sitemap found!"
@@ -102,7 +101,7 @@ linksUnique=$(wc -l < sitemap_links_all.txt)
 shuf sitemap_links_all.txt > sitemap_links_all.tmp
 
 # show and save timestamp to report
-date | tee report.txt
+date | tee ~/SitemapCheck_Report_$url.txt
 
 # check if there was a second argument for maxNumURLs
 if [ -z $2 ]; then
@@ -130,32 +129,32 @@ SECONDS=0
 linksCheck=$(wc -l < sitemap_links_part.txt)
 
 # create the header of the Report
-echo -e "\nTest\tResponse\tURL" | tee -a report.txt
+echo -e "\nTest\tResponse\tURL" | tee -a ~/SitemapCheck_Report_$url.txt
 
 # loop through all links in the file and test them
-for url in $(cat sitemap_links_part.txt); do
+for link in $(cat sitemap_links_part.txt); do
     {
         echo -en "$counter/$linksCheck\t"
-        curl -L --silent --head -o /dev/null -w "%{http_code}" $url
+        curl -L --silent --head -o /dev/null -w "%{http_code}" $link
         if [ $? -ne 0 ]; then
             errors=$[$errors +1]
         fi
-        echo -e "\t$url"
-    } | tee -a report.txt
+        echo -e "\t$link"
+    } | tee -a ~/SitemapCheck_Report_$url.txt
     counter=$[$counter +1]
 done
 
 # sort the report file by status code
-sort -k2 -n -s report.txt > report.tmp; mv report.tmp report.txt
+sort -k2 -n -s ~/SitemapCheck_Report_$url.txt > ~/SitemapCheck_Report_$url.tmp; mv ~/SitemapCheck_Report_$url.tmp ~/SitemapCheck_Report_$url.txt
 
 # print overview
-echo
-echo -e "Sitemap Files:\t$sitemaps" | tee -a report.txt
-echo -e "Links Total:\t$linksTotal" | tee -a report.txt
-echo -e "Links Unique:\t$linksUnique" | tee -a report.txt
-echo -e "Links Checked:\t$linksCheck" | tee -a report.txt
-echo -e "Errors:\t\t$errors" | tee -a report.txt
-echo -e "Duration:\t$(echo $SECONDS)s" | tee -a report.txt
+echo | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Sitemap Files:\t$sitemaps" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Links Total:\t$linksTotal" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Links Unique:\t$linksUnique" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Links Checked:\t$linksCheck" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "Duration:\t$(echo $SECONDS)s" | tee -a ~/SitemapCheck_Report_$url.txt
 echo
 echo "Done!"
 read -p "Press any key to exit ... " -n 1
