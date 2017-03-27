@@ -148,6 +148,7 @@ for link in $(cat sitemap_links_part.txt); do
     echo -n $code | tee -a SitemapCheck_Report_$label.txt
     if [ $code -gt 200 ]; then
         anomalies=$[$anomalies +1]
+        echo -n " *"
     fi
     echo -e "\t\t$link" | tee -a SitemapCheck_Report_$label.txt
     counter=$[$counter +1]
