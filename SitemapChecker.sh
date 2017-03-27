@@ -110,7 +110,7 @@ shuf sitemap_links_all.txt > sitemap_links_all.tmp
 clear
 
 # show and save timestamp to report
-date | tee ~/SitemapCheck_Report_$label.txt
+date | tee SitemapCheck_Report_$label.txt
 
 # check if there was a second argument for maxNumURLs
 if [ -z $3 ]; then
@@ -134,39 +134,37 @@ rm *.xml
 
 # set some variables to get a nice output
 counter=1
-errors=0
+anomalies=0
 SECONDS=0
 linksCheck=$(wc -l < sitemap_links_part.txt)
 
 # create the header of the Report
-echo -e "\nTest\tResponse\tURL" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "\nTest\tResponse\tURL" | tee -a SitemapCheck_Report_$label.txt
 
 # loop through all links in the file and test them
 for link in $(cat sitemap_links_part.txt); do
-    {
-        echo -en "$counter/$linksCheck\t"
-        code=$(curl -L --max-time 10 --connect-timeout 5 --silent --head -o /dev/null -w "%{http_code}" $link)
-        echo -n $code
-        #if [ $? -ne 200 ]; then
-        #    errors=$[$errors +1]
-        #fi
-        echo -e "\t\t$link"
-    } | tee -a ~/SitemapCheck_Report_$label.txt
+    echo -en "$counter/$linksCheck\t" | tee -a SitemapCheck_Report_$label.txt
+    code=$(curl -L --max-time 10 --connect-timeout 5 --silent --head -o /dev/null -w "%{http_code}" $link)
+    echo -n $code | tee -a SitemapCheck_Report_$label.txt
+    if [ $code -gt 200 ]; then
+        anomalies=$[$anomalies +1]
+    fi
+    echo -e "\t\t$link" | tee -a SitemapCheck_Report_$label.txt
     counter=$[$counter +1]
 done
 
 # sort the report file by status code
-sort -k2 -n -s ~/SitemapCheck_Report_$label.txt > ~/SitemapCheck_Report_$label.tmp; mv ~/SitemapCheck_Report_$label.tmp ~/SitemapCheck_Report_$label.txt
+sort -k2 -n -s SitemapCheck_Report_$label.txt > SitemapCheck_Report_$label.tmp; mv SitemapCheck_Report_$label.tmp SitemapCheck_Report_$label.txt
 
 # print overview
-echo | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Sitemap Files:\t$sitemaps" | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Links Total:\t$linksTotal" | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Links Unique:\t$linksUnique" | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Links Checked:\t$linksCheck" | tee -a ~/SitemapCheck_Report_$label.txt
-#echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Duration:\t$(echo $SECONDS)s" | tee -a ~/SitemapCheck_Report_$label.txt
-echo | tee -a ~/SitemapCheck_Report_$label.txt
-echo | tee -a ~/SitemapCheck_Report_$label.txt
+echo | tee -a SitemapCheck_Report_$label.txt
+echo -e "Sitemap Files:\t$sitemaps" | tee -a SitemapCheck_Report_$label.txt
+echo -e "Links Total:\t$linksTotal" | tee -a SitemapCheck_Report_$label.txt
+echo -e "Links Unique:\t$linksUnique" | tee -a SitemapCheck_Report_$label.txt
+echo -e "Links Checked:\t$linksCheck" | tee -a SitemapCheck_Report_$label.txt
+echo -e "Anomlies:\t$anomalies" | tee -a SitemapCheck_Report_$label.txt
+echo -e "Duration:\t$(echo $SECONDS)s" | tee -a SitemapCheck_Report_$label.txt
+echo | tee -a SitemapCheck_Report_$label.txt
+echo | tee -a SitemapCheck_Report_$label.txt
 read -p "Done! Press any key to exit ... " -n 1
 clear
