@@ -145,10 +145,11 @@ echo -e "\nTest\tResponse\tURL" | tee -a ~/SitemapCheck_Report_$label.txt
 for link in $(cat sitemap_links_part.txt); do
     {
         echo -en "$counter/$linksCheck\t"
-        curl -L --silent --head -o /dev/null -w "%{http_code}" $link
-        if [ $? -ne 0 ]; then
-            errors=$[$errors +1]
-        fi
+        code=$(curl -L --max-time 10 --connect-timeout 5 --silent --head -o /dev/null -w "%{http_code}" $link)
+        echo -n $code
+        #if [ $? -ne 200 ]; then
+        #    errors=$[$errors +1]
+        #fi
         echo -e "\t\t$link"
     } | tee -a ~/SitemapCheck_Report_$label.txt
     counter=$[$counter +1]
@@ -163,7 +164,7 @@ echo -e "Sitemap Files:\t$sitemaps" | tee -a ~/SitemapCheck_Report_$label.txt
 echo -e "Links Total:\t$linksTotal" | tee -a ~/SitemapCheck_Report_$label.txt
 echo -e "Links Unique:\t$linksUnique" | tee -a ~/SitemapCheck_Report_$label.txt
 echo -e "Links Checked:\t$linksCheck" | tee -a ~/SitemapCheck_Report_$label.txt
-echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$label.txt
+#echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$label.txt
 echo -e "Duration:\t$(echo $SECONDS)s" | tee -a ~/SitemapCheck_Report_$label.txt
 echo | tee -a ~/SitemapCheck_Report_$label.txt
 echo | tee -a ~/SitemapCheck_Report_$label.txt
