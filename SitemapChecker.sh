@@ -28,7 +28,7 @@ if [ $? -ne 0 ]; then
             ;;
         * )
             echo "Your Linux Distribution is not yet supported"
-            echo "Please manually install the following tools: curl sed grep coreutils"
+            echo "Please manually install the following tools: curl wget sed grep coreutils"
             read -p "Press any key to exit ... " -n 1
             exit 1
             ;;
@@ -42,6 +42,8 @@ if [ -z $1 ]; then
     clear
 fi
 
+# clean remainings of previous run		 +
+rm ~/SitemapCheck_$url/*  2> /dev/null
 
 # create a folder for the files we need to check
 mkdir ~/SitemapCheck_$url
