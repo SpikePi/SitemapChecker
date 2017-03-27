@@ -4,8 +4,15 @@
 clear
 
 # Save arguments of command line to variables
-url=$1
-maxNumURLs=$2
+label=$1
+url=$2
+maxNumURLs=$3
+
+# label your testrun
+if [ -z $1 ]; then
+    read -p "Type a name for your testrun: " label
+
+fi
 
 # check if seccessary tools are installed
 # if not install them (made it work on debian based distros and fedora)
@@ -37,21 +44,21 @@ fi
 
 
 # if argument 1 is empty ask for input
-if [ -z $1 ]; then
+if [ -z $2 ]; then
     read -p "Type the URL you want to check: " url
     clear
 fi
 
-# clean remainings of previous run		 +
-rm ~/SitemapCheck_$url/*  2> /dev/null
+# clean remainings of previous run
+rm -rf ~/SitemapCheck_$label/* 2> /dev/null
 
 # create a folder for the files we need to check
-mkdir ~/SitemapCheck_$url
+mkdir ~/SitemapCheck_$label 2> /dev/null
 # go into the directory we want to work with
-cd ~/SitemapCheck_$url
+cd ~/SitemapCheck_$label
 
 # download the sitemap.xml. In case of an error exit the script
-wget $url/sitemap.xml -O sitemap.tmp
+wget $url -O sitemap.tmp
 if [ $? -ne 0 ]; then
     clear
     echo "No sitemap found!"
@@ -83,9 +90,6 @@ fi
 # save how many sitemap-files were found
 sitemaps=$(ls *.xml 2> /dev/null | wc -l)
 
-# clear output
-clear
-
 # filter all downloaded sitemaps for URLs and put them in one file
 egrep -v "\.xml" *.xml* | egrep -o "<loc>.*</loc>" > sitemap_links_all.tmp
 
@@ -102,12 +106,16 @@ linksUnique=$(wc -l < sitemap_links_all.txt)
 # shuffle links to get a random set of links from every part of the site
 shuf sitemap_links_all.txt > sitemap_links_all.tmp
 
+# clear output
+clear
+
 # show and save timestamp to report
-date | tee ~/SitemapCheck_Report_$url.txt
+date | tee ~/SitemapCheck_Report_$label.txt
 
 # check if there was a second argument for maxNumURLs
-if [ -z $2 ]; then
+if [ -z $3 ]; then
     # print how many unique links were found
+    echo
     echo -e "Found $linksUnique unique links."
 
     # ask how many of the links should be checked
@@ -131,7 +139,7 @@ SECONDS=0
 linksCheck=$(wc -l < sitemap_links_part.txt)
 
 # create the header of the Report
-echo -e "\nTest\tResponse\tURL" | tee -a ~/SitemapCheck_Report_$url.txt
+echo -e "\nTest\tResponse\tURL" | tee -a ~/SitemapCheck_Report_$label.txt
 
 # loop through all links in the file and test them
 for link in $(cat sitemap_links_part.txt); do
@@ -141,23 +149,23 @@ for link in $(cat sitemap_links_part.txt); do
         if [ $? -ne 0 ]; then
             errors=$[$errors +1]
         fi
-        echo -e "\t$link"
-    } | tee -a ~/SitemapCheck_Report_$url.txt
+        echo -e "\t\t$link"
+    } | tee -a ~/SitemapCheck_Report_$label.txt
     counter=$[$counter +1]
 done
 
 # sort the report file by status code
-sort -k2 -n -s ~/SitemapCheck_Report_$url.txt > ~/SitemapCheck_Report_$url.tmp; mv ~/SitemapCheck_Report_$url.tmp ~/SitemapCheck_Report_$url.txt
+sort -k2 -n -s ~/SitemapCheck_Report_$label.txt > ~/SitemapCheck_Report_$label.tmp; mv ~/SitemapCheck_Report_$label.tmp ~/SitemapCheck_Report_$label.txt
 
 # print overview
-echo | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Sitemap Files:\t$sitemaps" | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Links Total:\t$linksTotal" | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Links Unique:\t$linksUnique" | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Links Checked:\t$linksCheck" | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$url.txt
-echo -e "Duration:\t$(echo $SECONDS)s" | tee -a ~/SitemapCheck_Report_$url.txt
-echo
-echo "Done!"
-read -p "Press any key to exit ... " -n 1
+echo | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Sitemap Files:\t$sitemaps" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Links Total:\t$linksTotal" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Links Unique:\t$linksUnique" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Links Checked:\t$linksCheck" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Errors:\t\t$errors" | tee -a ~/SitemapCheck_Report_$label.txt
+echo -e "Duration:\t$(echo $SECONDS)s" | tee -a ~/SitemapCheck_Report_$label.txt
+echo | tee -a ~/SitemapCheck_Report_$label.txt
+echo | tee -a ~/SitemapCheck_Report_$label.txt
+read -p "Done! Press any key to exit ... " -n 1
 clear
