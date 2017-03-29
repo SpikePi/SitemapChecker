@@ -11,7 +11,6 @@ maxNumURLs=$3
 # label your testrun
 if [ -z $1 ]; then
     read -p "Type a name for your testrun: " label
-
 fi
 
 # check if seccessary tools are installed
@@ -21,7 +20,7 @@ if [ $? -ne 0 ]; then
     distribution=$(lsb_release -is)
 
     if [ $? -ne 0 ]; then
-        echo "Cant't identify your Linux Distribution because lsb_release is not installed"
+        echo "Cant't identify your Linux Distribution because lsb_release is not installed."
         read -p "Press any key to exit ... " -n 1
         exit 1
     fi
@@ -45,12 +44,13 @@ fi
 
 # if argument 1 is empty ask for input
 if [ -z $2 ]; then
-    read -p "Type the URL you want to check: " url
-    clear
+        echo "If you don't know where the sitemap is, look for it at the robots.txt"
+        read -p "Type the URL you want to check: " url
+        clear
 fi
 
 # clean remainings of previous run
-rm -rf ~/SitemapCheck_$label/* 2> /dev/null
+rm ~/SitemapCheck_$label/* 2> /dev/null
 
 # create a folder for the files we need to check
 mkdir ~/SitemapCheck_$label 2> /dev/null
@@ -59,7 +59,7 @@ cd ~/SitemapCheck_$label
 
 # download the sitemap.xml. In case of an error exit the script
 wget $url -O sitemap.tmp
-if [ $? -ne 0 ]; then
+if [ -n $?]; then
     clear
     echo "No sitemap found!"
     echo
@@ -70,10 +70,9 @@ fi
 xmllint --format sitemap.tmp > sitemap.xml
 
 # look if there are other sitemaps linked
-grep "\.xml" sitemap.xml > /dev/null
 
 # if sitemap is split into pieces get all parts of it
-if [ $? -eq 0 ]; then
+if [ -n $(grep "\.xml" sitemap.xml|wc -l) ]; then
     # save all found sitemap addresses in new file
     egrep -o "<loc>.*\.xml.*</loc>" sitemap.xml > sitemaps.tmp
 
@@ -91,10 +90,11 @@ fi
 sitemaps=$(ls *.xml 2> /dev/null | wc -l)
 
 # filter all downloaded sitemaps for URLs and put them in one file
-egrep -v "\.xml" *.xml* | egrep -o "<loc>.*</loc>" > sitemap_links_all.tmp
+grep -v "\.xml" *.xml* | grep -oE "(http.:\/\/www\.)([a-zA-Z0-9_-]{4,}\.)([a-zA-Z]{2,3})([a-zA-Z0-9\/_\.-])+" > sitemap_links_all.tmp
+#grep -v "\.xml" *.xml* | grep -Eo "<loc>.*</loc>" > sitemap_links_all.tmp
 
 # remove surrounding loc-tag
-sed -i 's/<[\/]*loc>//g' sitemap_links_all.tmp
+#sed -i 's/<[\/]*loc>//g' sitemap_links_all.tmp
 
 # save how many links were found
 linksTotal=$(wc -l < sitemap_links_all.tmp)
@@ -146,7 +146,7 @@ for link in $(cat sitemap_links_part.txt); do
     echo -en "$counter/$linksCheck\t" | tee -a Report.txt
     code=$(curl -L --max-time 10 --connect-timeout 5 --silent --head -o /dev/null -w "%{http_code}" $link)
     echo -n $code | tee -a Report.txt
-    if [ $code -gt 200 ]; then
+    if [ $code -ne 200 ]; then
         anomalies=$[$anomalies +1]
         echo -n " *"
     fi
