@@ -1,39 +1,21 @@
 # SitemapChecker
 
-Linux bash script to test if the linked sites of a sitemap are available. The script also recognizes sitemaps that are split across several files. After execution you can find a report stored in `~/SitemapCheck_${Label}/Report.txt`.
-
-## Dependencies
-
+## Abhängigkeiten
 - libxml2 (xmllint)
 - curl
 - sed
 - grep
 - coreutils
 
-If you use a Debian based distribution or Feadora the script will install all needed dependencies if you allow to (on request I may add more distributions).
+Wird eine auf Debian basierte Distribution oder Fedora eingesetzt, können die fehlenden Tools auf Wunsch automatisch installiert werden (bei Bedarf kann das ebenfalls fuer andere Distributionnen erweitert werden).
 
-1. Making the script executable
-    - via terminal change directory to where you downloaded the script, e. g. `cd ~/Downloads`
-    - make the script executable by running `chmod +x sitemapChecker.sh`
-2. Starting the script
-    - `./sitemapChecker.sh` or `bash /sitemapChecker.sh`
+1. Script ausführbar machen
+    - per Shell in den Ordner des Scripts wechseln bspw. cd ~/Downloads
+    - Script ausführbar machen mittels chmod +x sitemapChecker.sh
 
-While executing the script you can append up to 3 parameters (take notice of truth table below) with the following meaning `./SitemapChecker.sh [Label] [URL] [MaxLinksToCheck]` i. e. `./SitemapChecker.sh heise heise.de/sitemap.xml 500`.
+- Script starten
+    - ./sitemapChecker.sh oder bash /sitemapChecker.sh
+    - zu testende Seite muss als erster (und einziger) Parameter an das Script übergeben werden bspw. ./sitemapChecker.sh heise.de
 
-1. Label: Only affects the folder name where your report is stored
-2. URL: Address to the sitemap you want to check
-3. MaxLinksToCheck: How many links should be tested max.
 
-If executed without the parameters the script will ask for input during execution.
-
-## Truth table for script parameters
-
-|Label|URL|MaxLinksToCheck|Working?|
-|:---:|:-:|:-------------:|:------:|
-|✖    |✖  |✖              |✔       |
-|✔    |✔  |✔              |✔       |
-|✔    |✔  |✖              |✔       |
-|✔    |✖  |✖              |✔       |
-|✖    |✔  |✔              |✖       |
-|✖    |✔  |✖              |✖       |
-|✖    |✖  |✔              |✖       |
+Das Script läd alle Sitemaps herunter und testet alle hinterlegten Links. Das Ergebnis liegt anschliessend in ~/results.html.
