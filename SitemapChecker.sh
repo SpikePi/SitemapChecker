@@ -43,7 +43,7 @@ fi
 
 
 # if argument 1 is empty ask for input
-if [ -z $2 ]; then
+if [ -z $url ]; then
         echo "If you don't know where the sitemap is, look for it at the robots.txt"
         read -p "Type the URL you want to check: " url
         clear
@@ -59,22 +59,21 @@ cd ~/SitemapCheck_$label
 
 # download the sitemap.xml. In case of an error exit the script
 wget $url -O sitemap.tmp
-if [ -n $?]; then
+if [ -z $? ]; then
     clear
     echo "No sitemap found!"
     echo
     exit 1
 fi
-
 # beautify it to make it better grep-able
 xmllint --format sitemap.tmp > sitemap.xml
 
 # look if there are other sitemaps linked
-
 # if sitemap is split into pieces get all parts of it
-if [ -n $(grep "\.xml" sitemap.xml|wc -l) ]; then
+grep "\.xml" sitemap.xml
+if [ $? -eq 0 ]; then
     # save all found sitemap addresses in new file
-    egrep -o "<loc>.*\.xml.*</loc>" sitemap.xml > sitemaps.tmp
+    grep -Eo "<loc>.*\.xml.*</loc>" sitemap.xml > sitemaps.tmp
 
     # remove surrounding loc-tag
     sed -i 's/<[\/]*loc>//g' sitemaps.tmp
@@ -87,10 +86,10 @@ if [ -n $(grep "\.xml" sitemap.xml|wc -l) ]; then
 fi
 
 # save how many sitemap-files were found
-sitemaps=$(ls *.xml 2> /dev/null | wc -l)
+sitemaps=$(ls *.xml* 2> /dev/null | wc -l)
 
 # filter all downloaded sitemaps for URLs and put them in one file
-grep -v "\.xml" *.xml* | grep -oE "(http.:\/\/www\.)([a-zA-Z0-9_-]{4,}\.)([a-zA-Z]{2,3})([a-zA-Z0-9\/_\.-])+" > sitemap_links_all.tmp
+grep -v "\.xml" *.xml* | grep -Eo "(http[s]*:\/\/www\.)([a-zA-Z0-9_-]{4,}\.)([a-zA-Z]{2,3})([a-zA-Z0-9\/_\.-])+" *.xml > sitemap_links_all.tmp
 #grep -v "\.xml" *.xml* | grep -Eo "<loc>.*</loc>" > sitemap_links_all.tmp
 
 # remove surrounding loc-tag
