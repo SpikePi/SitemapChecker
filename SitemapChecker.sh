@@ -262,7 +262,7 @@ echo -e "Sitemap Files:\t$sitemaps" | tee -a Report.txt
 echo -e "Links Total:\t$linksTotal" | tee -a Report.txt
 echo -e "Links Unique:\t$linksUnique" | tee -a Report.txt
 echo -e "Links Checked:\t$counter" | tee -a Report.txt
-echo -e "Anomlies:\t$anomalies" | tee -a Report.txt
+echo -e "Anomalies:\t$anomalies" | tee -a Report.txt
 echo -e "Duration:\t$SECONDS s\n\n" | tee -a Report.txt
 read -p "Done! Press any key to exit ... " -n 1
 clear
