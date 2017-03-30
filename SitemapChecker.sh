@@ -122,7 +122,7 @@ if [ -z $3 ]; then
 else
         echo "Testinging $maxNumURLs Links out of $linksUnique."
 fi
-if [ -z $maxNumURLs ]; then maxNumURLs=999999 ; fi
+if [ -z $maxNumURLs ]; then maxNumURLs=999999; fi
 
 # take first ${argument2} links that should be tested and sort them again
 # so that they are tested in alphabetic order to get a better output
@@ -152,6 +152,7 @@ for link in $(cat sitemap_links_part.txt); do
                 echo -n " *"
         fi
         case $code in
+                000 ) curl="true" ;;
                 100 ) Continue="true" ;;
                 101 ) SwitchingProtocol="true" ;;
                 200 ) OK="true" ;;
@@ -197,7 +198,7 @@ for link in $(cat sitemap_links_part.txt); do
                 504 ) GatewayTimeout="true" ;;
                 505 ) HTTPVersionNotSupported="true" ;;
                 511 ) NetworkAuthenticationRequired="true" ;;
-                * ) ;;
+                * ) Unknown="true" ;;
         esac
         echo -e "\t\t$link" | tee -a Report.txt
 done
@@ -205,8 +206,9 @@ done
 # sort the report file by status code
 sort -k2 -n -s Report.txt > Report.tmp; mv Report.tmp Report.txt
 
-# print found anamolies and their meanings
+# print found status codes and their meanings
 echo -e "\n\nMeaning of HTTP status codes" | tee -a Report.txt
+if [ -n "$curl" ];then echo "000: cURL did not receive a HTTP response code" | tee -a Report.txt; fi
 if [ -n "$Continue" ];then echo "100: Continue" | tee -a Report.txt; fi
 if [ -n "$SwitchingProtocol" ];then echo "101: SwitchingProtocol" | tee -a Report.txt; fi
 if [ -n "$OK" ];then echo "200: OK" | tee -a Report.txt; fi
@@ -252,6 +254,7 @@ if [ -n "$ServiceUnavailable" ];then echo "503: ServiceUnavailable" | tee -a Rep
 if [ -n "$GatewayTimeout" ];then echo "504: GatewayTimeout" | tee -a Report.txt; fi
 if [ -n "$HTTPVersionNotSupported" ];then echo "505: HTTPVersionNotSupported" | tee -a Report.txt; fi
 if [ -n "$NetworkAuthenticationRequired" ];then echo "511: Network Authentication Required" | tee -a Report.txt; fi
+if [ -n "$Unknown" ];then echo "Unknown HTTP response code" | tee -a Report.txt; fi
 
 # print overview
 echo | tee -a Report.txt
