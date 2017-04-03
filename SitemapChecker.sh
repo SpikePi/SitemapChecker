@@ -55,7 +55,7 @@ rm ~/SitemapCheck_${LABEL}/* 2> /dev/null
 # create a folder for the files we need to check
 mkdir ~/SitemapCheck_${LABEL} 2> /dev/null
 # go into the directory we want to work with
-cd ~/SitemapCheck_${LABEL} || echo "Could not change into Directory"; exit
+cd ~/SitemapCheck_${LABEL} || { echo "Could not change into Directory"; exit 1; }
 
 # download the sitemap.xml. In case of an error exit the script
 wget ${URL} -O sitemap.tmp
