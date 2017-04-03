@@ -19,13 +19,13 @@ which xmllint curl wget sort sed grep > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
         DISTRIBUTION=$(lsb_release -is)
 
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
                 echo "Cant't identify your Linux Distribution because lsb_release is not installed."
                 read -p "Press any key to exit ... " -n 1
                 exit 1
         fi
 
-        case ${DISTRIBUTION}} in
+        case ${DISTRIBUTION} in
                 Debian | LinuxMint | Ubuntu )
                         sudo apt-get update; sudo apt-get install curl libxml2-utils wget coreutils sed grep
                         ;;
@@ -55,7 +55,7 @@ rm ~/SitemapCheck_${LABEL}/* 2> /dev/null
 # create a folder for the files we need to check
 mkdir ~/SitemapCheck_${LABEL} 2> /dev/null
 # go into the directory we want to work with
-cd ~/SitemapCheck_${LABEL}
+cd ~/SitemapCheck_${LABEL} || echo "Could not change into Directory"; exit
 
 # download the sitemap.xml. In case of an error exit the script
 wget ${URL} -O sitemap.tmp
@@ -78,7 +78,7 @@ if grep "\.xml" sitemap.xml; then
         sed -i 's/<[\/]*loc>//g' sitemaps.tmp
 
         # get all found sitemaps
-        wget $(cat sitemaps.tmp)
+        wget "$(cat sitemaps.tmp)"
 
         # beatify all sitemaps
         find . -name "*.xml" -type f -exec xmllint --output '{}' --format '{}' \;
@@ -121,7 +121,7 @@ if [[ -z $3 ]]; then
 else
         echo "Testinging ${MAXNUMURLS} Links out of ${LINKSUNIQUE}."
 fi
-if [[ -z ${MAXNUMURLS} ]]; then maxNumURLs=999999; fi
+if [[ -z ${MAXNUMURLS} ]]; then MAXNUMURLS=999999; fi
 
 # take first ${argument2} links that should be tested and sort them again
 # so that they are tested in alphabetic order to get a better output
@@ -207,53 +207,53 @@ sort -k2 -n -s Report.txt > Report.tmp; mv Report.tmp Report.txt
 
 # print found status codes and their meanings
 echo -e "\n\nMeaning of HTTP status codes" | tee -a Report.txt
-if [[ -n "$CURL" ]];then echo "000: cURL did not receive a HTTP response code" | tee -a Report.txt; fi
-if [[ -n "$CONTINUE" ]];then echo "100: Continue" | tee -a Report.txt; fi
-if [[ -n "$SWITCHINGPROTOCOL" ]];then echo "101: SwitchingProtocol" | tee -a Report.txt; fi
-if [[ -n "$OK" ]];then echo "200: OK" | tee -a Report.txt; fi
-if [[ -n "$CREATED" ]];then echo "201: Created" | tee -a Report.txt; fi
-if [[ -n "$ACCEPTED" ]];then echo "202: Accepted" | tee -a Report.txt; fi
-if [[ -n "$AUTHORITATIVEINFORMATION" ]];then echo "203: Non-AuthoritativeInformation" | tee -a Report.txt; fi
-if [[ -n "$NOCONTENT" ]];then echo "204: NoContent" | tee -a Report.txt; fi
-if [[ -n "$RESETCONTENT" ]];then echo "205: ResetContent" | tee -a Report.txt; fi
-if [[ -n "$PARTIALCONTENT" ]];then echo "206: PartialContent" | tee -a Report.txt; fi
-if [[ -n "$MULTIPLECHOICES" ]];then echo "300: MultipleChoices" | tee -a Report.txt; fi
-if [[ -n "$MOVEDPERMANENTLY" ]];then echo "301: MovedPermanently" | tee -a Report.txt; fi
-if [[ -n "$FOUND" ]];then echo "302: Found" | tee -a Report.txt; fi
-if [[ -n "$SEEOTHER" ]];then echo "303: SeeOther" | tee -a Report.txt; fi
-if [[ -n "$NOTMODIEQ" ]];then echo "304: NotModi; fied" | tee -a Report.txt; fi
-if [[ -n "$TEMPORARYREDIRECT" ]];then echo "307: TemporaryRedirect" | tee -a Report.txt; fi
-if [[ -n "$PERMANENTREDIRECT" ]];then echo "308: PermanentRedirect" | tee -a Report.txt; fi
-if [[ -n "$BADREQUEST" ]];then echo "400: BadRequest" | tee -a Report.txt; fi
-if [[ -n "$UNAUTHORIZED" ]];then echo "401: Unauthorized" | tee -a Report.txt; fi
-if [[ -n "$FORBIDDEN" ]];then echo "403: Forbidden" | tee -a Report.txt; fi
-if [[ -n "$NOTFOUND" ]];then echo "404: NotFound" | tee -a Report.txt; fi
-if [[ -n "$METHODNOTALLOWED" ]];then echo "405: MethodNotAllowed" | tee -a Report.txt; fi
-if [[ -n "$NOTACCEPTABLE" ]];then echo "406: NotAcceptable" | tee -a Report.txt; fi
-if [[ -n "$PROXYAUTHENTICATIONREQUIRED" ]];then echo "407: ProxyAuthenticationRequired" | tee -a Report.txt; fi
-if [[ -n "$REQUESTTIMEOUT" ]];then echo "408: RequestTimeout" | tee -a Report.txt; fi
-if [[ -n "$CONFLICT" ]];then echo "409: Conflict" | tee -a Report.txt; fi
-if [[ -n "$GONE" ]];then echo "410: Gone" | tee -a Report.txt; fi
-if [[ -n "$LENGTHREQUIRED" ]];then echo "411: LengthRequired" | tee -a Report.txt; fi
-if [[ -n "$PRECONDITIONFAILED" ]];then echo "412: PreconditionFailed" | tee -a Report.txt; fi
-if [[ -n "$PAYLOADTOOLARGE" ]];then echo "413: PayloadTooLarge" | tee -a Report.txt; fi
-if [[ -n "$URITOOLONG" ]];then echo "414: URITooLong" | tee -a Report.txt; fi
-if [[ -n "$UNSUPPORTEDMEDIATYPE" ]];then echo "415: UnsupportedMediaType" | tee -a Report.txt; fi
-if [[ -n "$RANGENOTSATIS" ]];then echo "416: RangeNotSatis; fiable" | tee -a Report.txt; fi
-if [[ -n "$EXPECTATIONFAILED" ]];then echo "417: ExpectationFailed" | tee -a Report.txt; fi
-if [[ -n "$UPGRADEREQUIRED" ]];then echo "426: UpgradeRequired" | tee -a Report.txt; fi
-if [[ -n "$PRECONDITIONREQUIRED" ]];then echo "428: PreconditionRequired" | tee -a Report.txt; fi
-if [[ -n "$TOOMANYREQUESTS" ]];then echo "429: TooManyRequests" | tee -a Report.txt; fi
-if [[ -n "$REQUESTHEADERTOOLARGE" ]];then echo "431: RequestHeader; fieldsTooLarge" | tee -a Report.txt; fi
-if [[ -n "$UNAVAILABLEFORLEGALREASONS" ]];then echo "451: UnavailableForLegalReasons" | tee -a Report.txt; fi
-if [[ -n "$INTERNALSERVERERROR" ]];then echo "500: InternalServerError" | tee -a Report.txt; fi
-if [[ -n "$NOTIMPLEMENTED" ]];then echo "501: NotImplemented" | tee -a Report.txt; fi
-if [[ -n "$BADGATEWAY" ]];then echo "502: BadGateway" | tee -a Report.txt; fi
-if [[ -n "$SERVICEUNAVAILABLE" ]];then echo "503: ServiceUnavailable" | tee -a Report.txt; fi
-if [[ -n "$GATEWAYTIMEOUT" ]];then echo "504: GatewayTimeout" | tee -a Report.txt; fi
-if [[ -n "$HTTPVERSIONNOTSUPPORTED" ]];then echo "505: HTTPVersionNotSupported" | tee -a Report.txt; fi
-if [[ -n "$NETWORKAUTHENTICATIONREQUIRED" ]];then echo "511: Network Authentication Required" | tee -a Report.txt; fi
-if [[ -n "$UNKNOWN" ]];then echo "Unknown HTTP response code" | tee -a Report.txt; fi
+if [[ -n "${CURL}" ]];then echo "000: cURL did not receive a HTTP response code" | tee -a Report.txt; fi
+if [[ -n "${CONTINUE}" ]];then echo "100: Continue" | tee -a Report.txt; fi
+if [[ -n "${SWITCHINGPROTOCOL}" ]];then echo "101: SwitchingProtocol" | tee -a Report.txt; fi
+if [[ -n "${OK}" ]];then echo "200: OK" | tee -a Report.txt; fi
+if [[ -n "${CREATED}" ]];then echo "201: Created" | tee -a Report.txt; fi
+if [[ -n "${ACCEPTED}" ]];then echo "202: Accepted" | tee -a Report.txt; fi
+if [[ -n "${AUTHORITATIVEINFORMATION}" ]];then echo "203: Non-AuthoritativeInformation" | tee -a Report.txt; fi
+if [[ -n "${NOCONTENT}" ]];then echo "204: NoContent" | tee -a Report.txt; fi
+if [[ -n "${RESETCONTENT}" ]];then echo "205: ResetContent" | tee -a Report.txt; fi
+if [[ -n "${PARTIALCONTENT}" ]];then echo "206: PartialContent" | tee -a Report.txt; fi
+if [[ -n "${MULTIPLECHOICES}" ]];then echo "300: MultipleChoices" | tee -a Report.txt; fi
+if [[ -n "${MOVEDPERMANENTLY}" ]];then echo "301: MovedPermanently" | tee -a Report.txt; fi
+if [[ -n "${FOUND}" ]];then echo "302: Found" | tee -a Report.txt; fi
+if [[ -n "${SEEOTHER}" ]];then echo "303: SeeOther" | tee -a Report.txt; fi
+if [[ -n "${NOTMODIFIED}" ]];then echo "304: NotModi; fied" | tee -a Report.txt; fi
+if [[ -n "${TEMPORARYREDIRECT}" ]];then echo "307: TemporaryRedirect" | tee -a Report.txt; fi
+if [[ -n "${PERMANENTREDIRECT}" ]];then echo "308: PermanentRedirect" | tee -a Report.txt; fi
+if [[ -n "${BADREQUEST}" ]];then echo "400: BadRequest" | tee -a Report.txt; fi
+if [[ -n "${UNAUTHORIZED}" ]];then echo "401: Unauthorized" | tee -a Report.txt; fi
+if [[ -n "${FORBIDDEN}" ]];then echo "403: Forbidden" | tee -a Report.txt; fi
+if [[ -n "${NOTFOUND}" ]];then echo "404: NotFound" | tee -a Report.txt; fi
+if [[ -n "${METHODNOTALLOWED}" ]];then echo "405: MethodNotAllowed" | tee -a Report.txt; fi
+if [[ -n "${NOTACCEPTABLE}" ]];then echo "406: NotAcceptable" | tee -a Report.txt; fi
+if [[ -n "${PROXYAUTHENTICATIONREQUIRED}" ]];then echo "407: ProxyAuthenticationRequired" | tee -a Report.txt; fi
+if [[ -n "${REQUESTTIMEOUT}" ]];then echo "408: RequestTimeout" | tee -a Report.txt; fi
+if [[ -n "${CONFLICT}" ]];then echo "409: Conflict" | tee -a Report.txt; fi
+if [[ -n "${GONE}" ]];then echo "410: Gone" | tee -a Report.txt; fi
+if [[ -n "${LENGTHREQUIRED}" ]];then echo "411: LengthRequired" | tee -a Report.txt; fi
+if [[ -n "${PRECONDITIONFAILED}" ]];then echo "412: PreconditionFailed" | tee -a Report.txt; fi
+if [[ -n "${PAYLOADTOOLARGE}" ]];then echo "413: PayloadTooLarge" | tee -a Report.txt; fi
+if [[ -n "${URITOOLONG}" ]];then echo "414: URITooLong" | tee -a Report.txt; fi
+if [[ -n "${UNSUPPORTEDMEDIATYPE}" ]];then echo "415: UnsupportedMediaType" | tee -a Report.txt; fi
+if [[ -n "${RANGENOTSATISFIABLE}" ]];then echo "416: RangeNotSatis; fiable" | tee -a Report.txt; fi
+if [[ -n "${EXPECTATIONFAILED}" ]];then echo "417: ExpectationFailed" | tee -a Report.txt; fi
+if [[ -n "${UPGRADEREQUIRED}" ]];then echo "426: UpgradeRequired" | tee -a Report.txt; fi
+if [[ -n "${PRECONDITIONREQUIRED}" ]];then echo "428: PreconditionRequired" | tee -a Report.txt; fi
+if [[ -n "${TOOMANYREQUESTS}" ]];then echo "429: TooManyRequests" | tee -a Report.txt; fi
+if [[ -n "${REQUESTHEADERFIELDSTOOLARGE}" ]];then echo "431: RequestHeader; fieldsTooLarge" | tee -a Report.txt; fi
+if [[ -n "${UNAVAILABLEFORLEGALREASONS}" ]];then echo "451: UnavailableForLegalReasons" | tee -a Report.txt; fi
+if [[ -n "${INTERNALSERVERERROR}" ]];then echo "500: InternalServerError" | tee -a Report.txt; fi
+if [[ -n "${NOTIMPLEMENTED}" ]];then echo "501: NotImplemented" | tee -a Report.txt; fi
+if [[ -n "${BADGATEWAY}" ]];then echo "502: BadGateway" | tee -a Report.txt; fi
+if [[ -n "${SERVICEUNAVAILABLE}" ]];then echo "503: ServiceUnavailable" | tee -a Report.txt; fi
+if [[ -n "${GATEWAYTIMEOUT}" ]];then echo "504: GatewayTimeout" | tee -a Report.txt; fi
+if [[ -n "${HTTPVERSIONNOTSUPPORTED}" ]];then echo "505: HTTPVersionNotSupported" | tee -a Report.txt; fi
+if [[ -n "${NETWORKAUTHENTICATIONREQUIRED}" ]];then echo "511: Network Authentication Required" | tee -a Report.txt; fi
+if [[ -n "${UNKNOWN}" ]];then echo "Unknown HTTP response code" | tee -a Report.txt; fi
 
 # print overview
 echo | tee -a Report.txt
