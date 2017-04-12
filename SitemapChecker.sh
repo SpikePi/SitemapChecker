@@ -3,6 +3,9 @@
 # clear screen to see exciting stuff happen
 clear
 
+# Enable/Disable Debugging
+#set -x
+
 # Save arguments of command line to variables
 LABEL=$1
 URL=$2
@@ -70,7 +73,7 @@ xmllint --format sitemap.tmp > sitemap.xml
 
 # look if there are other sitemaps linked
 # if sitemap is split into pieces get all parts of it
-if grep "\.xml" sitemap.xml; then
+if grep "\.xml" sitemap.xml > /dev/null; then
         # save all found sitemap addresses in new file
         grep -Eo "<loc>.*\.xml.*</loc>" sitemap.xml > sitemaps.tmp
 
@@ -78,10 +81,10 @@ if grep "\.xml" sitemap.xml; then
         sed -i 's/<[\/]*loc>//g' sitemaps.tmp
 
         # get all found sitemaps
-        wget "$(cat sitemaps.tmp)"
+        wget $(cat sitemaps.tmp)
 
         # beatify all sitemaps
-        find . -name "*.xml" -type f -exec xmllint --output '{}' --format '{}' \;
+        #find . -name "*.xml" -type f -exec xmllint --output '{}' --format '{}' \;
 fi
 
 # save how many sitemap-files were found
@@ -129,7 +132,7 @@ head -n ${MAXNUMURLS} sitemap_links_all.tmp | sort > sitemap_links_part.txt
 
 # clean xml- and temp-files
 rm *.tmp
-rm *.xml
+#rm *.xml
 
 # set some variables to get a nice output
 COUNTER=0
