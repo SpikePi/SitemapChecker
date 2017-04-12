@@ -130,10 +130,6 @@ if [[ -z ${MAXNUMURLS} ]]; then MAXNUMURLS=999999; fi
 # so that they are tested in alphabetic order to get a better output
 head -n ${MAXNUMURLS} sitemap_links_all.tmp | sort > sitemap_links_part.txt
 
-# clean xml- and temp-files
-rm *.tmp
-#rm *.xml
-
 # set some variables to get a nice output
 COUNTER=0
 ANOMALIES=0
@@ -266,5 +262,13 @@ echo -e "Links Unique:\t${LINKSUNIQUE}" | tee -a Report.txt
 echo -e "Links Checked:\t${COUNTER}" | tee -a Report.txt
 echo -e "Anomalies:\t${ANOMALIES}" | tee -a Report.txt
 echo -e "Duration:\t${SECONDS} s\n\n" | tee -a Report.txt
-read -p "Done! Press any key to exit ... " -n 1
+echo -e "Done!"
+read -n 1 -p "Delete downloaded files? [y/n] " ANSWER
+if [[ $ANSWER = y || $ANSWER = Y ]]; then
+        # clean xml- and temp-files
+        rm *.tmp
+        rm *.xml
+fi
+
+
 clear
